@@ -1,11 +1,42 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
+// import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import devConfig from './dev'
 import prodConfig from './prod'
+// eslint-disable-next-line import/first
+import { UnifiedWebpackPluginV5 } from 'weapp-tailwindcss/webpack'
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
-export default defineConfig<'vite'>(async (merge, { command, mode }) => {
-  const baseConfig: UserConfigExport<'vite'> = {
+export default defineConfig<'webpack5'>(async (merge, { command, mode }) => {
+  const baseConfig: {
+    date: string;
+    sourceRoot: string;
+    mini: {
+      webpackChain(chain, webpack): void;
+      postcss: {
+        cssModules: { enable: boolean; config: { namingPattern: string; generateScopedName: string } };
+        pxtransform: { enable: boolean; config: {} }
+      }
+    };
+    plugins: string[];
+    h5: {
+      staticDirectory: string;
+      miniCssExtractPluginOption: { chunkFilename: string; filename: string; ignoreOrder: boolean };
+      publicPath: string;
+      postcss: {
+        autoprefixer: { enable: boolean; config: {} };
+        cssModules: { enable: boolean; config: { namingPattern: string; generateScopedName: string } }
+      }
+    };
+    designWidth: number;
+    outputRoot: string;
+    framework: string;
+    defineConstants: {};
+    copy: { patterns: any[]; options: {} };
+    projectName: string;
+    deviceRatio: { 375: number; 640: number; 750: number; 828: number };
+    compiler: string;
+    rn: { appName: string; postcss: { cssModules: { enable: boolean } } }
+  } = {
     projectName: 'MerikleShua',
     date: '2024-7-29',
     designWidth: 750,
@@ -17,7 +48,7 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
     },
     sourceRoot: 'src',
     outputRoot: 'dist',
-    plugins: [],
+    plugins: ['@tarojs/plugin-http'],
     defineConstants: {
     },
     copy: {
@@ -27,15 +58,17 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       }
     },
     framework: 'react',
-    compiler: 'vite',
+    compiler: 'webpack5',
     mini: {
+
       postcss: {
         pxtransform: {
           enable: true,
           config: {
-
+            removeCursorStyle: false,
           }
         },
+
         cssModules: {
           enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
           config: {
@@ -44,11 +77,25 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
           }
         }
       },
+      webpackChain(chain, webpack) {
+        // 复制这块区域到你的配置代码中 region start
+        chain.merge({
+          plugin: {
+            install: {
+              plugin: UnifiedWebpackPluginV5,
+              args: [{
+                appType: 'taro'
+              }]
+            }
+          }
+        })
+        // region end
+      }
+
     },
     h5: {
       publicPath: '/',
       staticDirectory: 'static',
-
       miniCssExtractPluginOption: {
         ignoreOrder: true,
         filename: 'css/[name].[hash].css',
