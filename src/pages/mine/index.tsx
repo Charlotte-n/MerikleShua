@@ -1,7 +1,8 @@
 import {memo} from "react";
-import {View, Text, Image} from '@tarojs/components'
+import {View, Text, Image, Button} from '@tarojs/components'
 import { useLoad } from '@tarojs/taro'
 import Avatar from '../../public/img/avatar.png'
+import AtButton from "../../components/AtButton";
 
 const MyProfile = memo(function (){
   return <View className='flex flex-col items-center'>
@@ -34,7 +35,15 @@ const MoreFunction = memo(function () {
       {
         MoreFunctionsData.map((item,index)=>{
           return <View key={item.title} className='py-[15rpx]  cursor-pointer ' style={MoreFunctionsData.length - 1 === index?{}:{ borderBottom:'1rpx solid #F7F7F7'}}>
-            <Text>{item.title}</Text>
+            {
+              item.title === '分享应用'?<AtButton openType='share' className='border-none text-left outline-0'>
+                {
+                  {
+                    content:'分享应用'
+                  }
+                }
+              </AtButton>:<Text >{item.title}</Text>
+            }
           </View>
         })
       }
